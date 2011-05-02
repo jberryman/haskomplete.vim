@@ -72,7 +72,7 @@ function! InsertModeCompletion()
     let hfunc = '[a-z_]\+[a-z_0-9' . "'" . ']*'  
     let hoper = '(\W\+)'
     let hterm = '\(' . hfunc . '\|' . hoper . '\)'
-    let hterms = '\(' . '\(^\|,\)\s*' . hterm . '\s*' . '\)\+' . '$'
+    let hterms = '^\(\s*\)' . hterm . '\s*' . '\(,\s*' . hterm . '\s*\)*$'
 
     " backwards on this line. For some reason this isn't triggered when cursor
     " is on column 0
