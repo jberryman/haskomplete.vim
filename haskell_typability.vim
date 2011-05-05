@@ -94,12 +94,14 @@ function! InsertModeCompletion()
         return "\<END>"
     endif
 
+    " ------------------------------------------------------------------------
     "continue with more matches...
 
     "nothing matched:
     return ""
 endfunction
 
+" this is an ftplugin:
 inoremap <silent> <C-H> <C-R>=InsertModeCompletion()<CR>
 "nmap <silent> <C-H> <C-R>=NormalModeCompletion()<CR>
 
