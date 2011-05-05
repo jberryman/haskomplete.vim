@@ -61,6 +61,14 @@
 " check out :help function-list
 "
 
+" define what a line of haskell terms looks like, e.g.:
+"     foo, bar,baz,(***) 
+let s:hfunc = '[a-z_]\+[a-z_0-9' . "'" . ']*'  
+let s:hoper = '(\W\+)'
+let s:hterm = '\(' . s:hfunc . '\|' . s:hoper . '\)'
+let s:hterms = '^\(\s*\)' . s:hterm . '\s*' . '\(,\s*' . s:hterm . '\s*\)*$'
+
+
 function! InsertModeCompletion()
     let curline_num = line('.')
     let curline = getline('.')
@@ -69,21 +77,20 @@ function! InsertModeCompletion()
     " If there are only spaces, commas, and allowable haskell function
     " characters to our left, then insert undefined(s) and ready cursor for
     " entering type sig:
-    let hfunc = '[a-z_]\+[a-z_0-9' . "'" . ']*'  
-    let hoper = '(\W\+)'
-    let hterm = '\(' . hfunc . '\|' . hoper . '\)'
-    let hterms = '^\(\s*\)' . hterm . '\s*' . '\(,\s*' . hterm . '\s*\)*$'
-
-    " backwards on this line. For some reason this isn't triggered when cursor
-    " is on column 0
-    if match(curline,hterms) >= 0
+    if match(curline,s:hterms) >= 0
         " preserves trailing whitespace. may not want that:
         let pad = match(curline,'\s\+$') >= 0 ? '' : ' '
         " We have to jump to the end of the line
         call setline('.', curline . pad . ":: ")
-        " TODO: use another regex to get the indentation of declaration(s):
-
-        " jump to end of line:
+        " if following line non empty, don't insert skeleton definitions:
+        if match(getline(curline_num + 1),'^\s*$') >= 0
+            " first string prefixed with indentation whitespace:
+            let hterm_list = split(curline,'\s*,\s*')
+            let ind = matchstr(hterm_list[0],'^\s\+')
+            let skel_func_lines = map(hterm_list, 'ind . substitute(v:val,"\\s*","","g") . " = undefined"')
+            " set the skeleton declarations into buffer:
+            call append(curline_num, skel_func_lines)
+        endif
         return "\<END>"
     endif
 
