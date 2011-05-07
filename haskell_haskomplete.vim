@@ -64,10 +64,13 @@
 " define what a line of haskell terms looks like, e.g.:
 "     foo, bar,baz,(***) 
 let s:hfunc = '[a-z_]\+[a-z_0-9' . "'" . ']*'  
-let s:hoper = '(\W\+)'
+let s:hoper = '([^()a-zA-Z0-9 ]\+)'
+"let s:hoper = '(\W\+)'
 let s:hterm = '\(' . s:hfunc . '\|' . s:hoper . '\)'
 let s:hterms = '^\(\s*\)' . s:hterm . '\s*' . '\(,\s*' . s:hterm . '\s*\)*'
-
+ " A term to the left of the = in a function declaration
+ " TODO: make this a better regex as needed:
+let s:arg_pat = '\(' . '[a-z_0-9' . "'" . ']\+'  . '\|' . '(\S\+)' . '\)'
 
 function! InsertModeCompletion()
     let curline_num = line('.')
@@ -108,6 +111,12 @@ function! InsertModeCompletion()
     if match(curline, s:hterms . '::\s*\((.\+)\s*=>\)\=.*$') >= 0
         return "\<END>" . pad . '-> ' . "\<END>"
     endif
+
+    " ------------------------------------------------------------------------
+    " make function-in-progress undefined:
+
+    " ------------------------------------------------------------------------
+    " More matches here...
 
     " ------------------------------------------------------------------------
     "nothing matched:
