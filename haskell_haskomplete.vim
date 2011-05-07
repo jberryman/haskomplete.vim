@@ -66,20 +66,20 @@
 let s:hfunc = '[a-z_]\+[a-z_0-9' . "'" . ']*'  
 let s:hoper = '(\W\+)'
 let s:hterm = '\(' . s:hfunc . '\|' . s:hoper . '\)'
-let s:hterms = '^\(\s*\)' . s:hterm . '\s*' . '\(,\s*' . s:hterm . '\s*\)*$'
+let s:hterms = '^\(\s*\)' . s:hterm . '\s*' . '\(,\s*' . s:hterm . '\s*\)*'
 
 
 function! InsertModeCompletion()
     let curline_num = line('.')
     let curline = getline('.')
     
+    " preserves trailing whitespace. may not want that:
+    let pad = match(curline,'\s\+$') >= 0 ? '' : ' '
     " ------------------------------------------------------------------------
     " If there are only spaces, commas, and allowable haskell function
     " characters to our left, then insert undefined(s) and ready cursor for
     " entering type sig:
-    if match(curline,s:hterms) >= 0
-        " preserves trailing whitespace. may not want that:
-        let pad = match(curline,'\s\+$') >= 0 ? '' : ' '
+    if match(curline, s:hterms . '$') >= 0
         " We have to jump to the end of the line
         call setline('.', curline . pad . ":: ")
         " if following line non empty, don't insert skeleton definitions:
@@ -95,8 +95,21 @@ function! InsertModeCompletion()
     endif
 
     " ------------------------------------------------------------------------
-    "continue with more matches...
+    " Initiate entering class constraints in a function signature line
+    if match(curline, s:hterms . '::\s*$') >= 0
+        let new_line = curline . pad . '()=> '
+        call setline('.', new_line)
+        call setpos('.',[0, curline_num, strlen(new_line) - 3, 0])
+        return ''
+    endif
+    
+    " ------------------------------------------------------------------------
+    " Create an arrow in type signature  
+    if match(curline, s:hterms . '::\s*\((.\+)\s*=>\)\=.*$') >= 0
+        return "\<END>" . pad . '-> ' . "\<END>"
+    endif
 
+    " ------------------------------------------------------------------------
     "nothing matched:
     return ""
 endfunction

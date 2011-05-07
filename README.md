@@ -30,9 +30,21 @@ mode anywhere on the line shown:
 Insert mode
 -----------
 
+create skeleton implementation of term(s) during type declaration:
+
     func1, func2           --->   func1, func2 :: ^
                                   func1 = undefined
                                   func2 = undefined
+
+Prepare a class restriction in a type signature line
+
+    func ::                --->   func :: (^)=>
+
+Create an arrow in a type signature:
+
+    func :: Type           --->   func :: Type -> ^
+
+
 
 Normal mode
 -----------
