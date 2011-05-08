@@ -44,7 +44,10 @@ Create an arrow in a type signature:
 
     func :: Type           --->   func :: Type -> ^
 
+Fill in 'undefined' in a function definition:
 
+    func x y               --->   func x y = #undefined
+    func  =                --->   func = #undefined
 
 Normal mode
 -----------

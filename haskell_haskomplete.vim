@@ -78,6 +78,11 @@ function! InsertModeCompletion()
     
     " preserves trailing whitespace. may not want that:
     let pad = match(curline,'\s\+$') >= 0 ? '' : ' '
+
+    " ------------------------------------------------------------------------
+    " matches for data/newtype declarations go here:
+    "    ....
+    
     " ------------------------------------------------------------------------
     " If there are only spaces, commas, and allowable haskell function
     " characters to our left, then insert undefined(s) and ready cursor for
@@ -108,12 +113,25 @@ function! InsertModeCompletion()
     
     " ------------------------------------------------------------------------
     " Create an arrow in type signature  
+    " TODO: restrict this better:
     if match(curline, s:hterms . '::\s*\((.\+)\s*=>\)\=.*$') >= 0
         return "\<END>" . pad . '-> ' . "\<END>"
     endif
 
     " ------------------------------------------------------------------------
     " make function-in-progress undefined:
+    " TODO: THIS SHOULD FILL IN UNDEFINED ON A SINGLE TERM WITHOUT ARGUMENTS
+    " OR = WHEN ITS TYPE IS DECLARED ON THE LINE ABOVE
+    " NOTE: AS CURRENTLY DEFINED, THIS DEPENDS ON BEING AFTER THE TYPE
+    " DECLARATION COMPLETION ABOVE
+    let funct_init = '^\s*' . s:hterm . '\(\s\+'. s:arg_pat . '\)*\s*=\=\s*$'
+    let eq_pad = match(curline,'=\s*$') >= 0 ? '' : '= '
+    if match(curline, funct_init) >= 0
+        let new_line = curline . pad . eq_pad . "undefined"
+        call setline('.', new_line)
+        call setpos('.',[0, curline_num, strlen(new_line) - 7, 0])
+        return "\<ESC>"
+    endif
 
     " ------------------------------------------------------------------------
     " More matches here...
