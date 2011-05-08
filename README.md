@@ -17,7 +17,7 @@ file.
 Usage
 =====
 
-In insert or normal modes, press <CTRL-H>. If your cursor is in a context that
+In insert or normal modes, press &lt;CTRL-H&gt;. If your cursor is in a context that
 has an assigned completion (see below) some magic completion action will occur.
 
 Implemented Completions
